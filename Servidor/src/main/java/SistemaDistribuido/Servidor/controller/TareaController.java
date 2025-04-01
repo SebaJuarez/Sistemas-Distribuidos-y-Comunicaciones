@@ -2,47 +2,36 @@ package SistemaDistribuido.Servidor.controller;
 
 import SistemaDistribuido.Servidor.dtos.ParametroTareaDTO;
 import SistemaDistribuido.Servidor.dtos.RespuestaTareaDTO;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.PullImageResultCallback;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import javassist.expr.NewArray;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 @RestController
 @RequestMapping("/tarea")
 public class TareaController {
 
 
-    @GetMapping()
+    @PostMapping()
     public RespuestaTareaDTO ejecutarTarea(@RequestBody ParametroTareaDTO parametroTarea) {
-        String containerName = "servidortarea";
-        String imageName = "dagyss/servidortarea";
+        String containerName = "tareaserver";
+        String imageName = "dagyss/tareaserver";
         int port = 8080;
 
         try {
-            // 1️⃣ Verificar si el contenedor ya está corriendo y detenerlo
+            if (!imagenExiste(imageName)) {
+                ejecutarComando("docker pull " + imageName);
+            }
+
             ejecutarComando("docker rm -f " + containerName);
 
-            // 2️⃣ Levantar el contenedor con la imagen Docker
             ejecutarComando("docker run -d --name " + containerName + " -p " + port + ":8080 " + imageName);
 
-            // 3️⃣ Esperar a que el contenedor esté listo
             esperarAQueEsteListo("http://localhost:" + port + "/ejecutarTarea/actuator/health");
 
-            // 4️⃣ Hacer la petición HTTP con los parámetros de la tarea
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -52,22 +41,38 @@ public class TareaController {
                     "http://localhost:" + port + "/ejecutarTarea", HttpMethod.POST, request, RespuestaTareaDTO.class
             );
 
+            ejecutarComando("docker rm -f " + containerName);
+
             return response.getBody();
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("No se conecto correctamente!");
+            throw new RuntimeException("No se conectó correctamente!");
+        }
+    }
+    private boolean imagenExiste(String imageName) {
+        try {
+            String output = ejecutarComando("docker images -q " + imageName);
+            return !output.trim().isEmpty();
+        } catch (Exception e) {
+            return false;
         }
     }
 
     /**
      * Ejecuta un comando en la terminal.
      */
-    private void ejecutarComando(String comando) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder("sh", "-c", comando);
-        processBuilder.redirectErrorStream(true);
-        Process process = processBuilder.start();
+
+    private String ejecutarComando(String comando) throws Exception {
+        Process process = Runtime.getRuntime().exec(comando);
         process.waitFor();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        StringBuilder output = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            output.append(line).append("\n");
+        }
+        return output.toString();
     }
 
     /**
