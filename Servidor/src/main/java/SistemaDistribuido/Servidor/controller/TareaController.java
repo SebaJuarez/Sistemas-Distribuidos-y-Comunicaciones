@@ -19,62 +19,60 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/tarea")
 public class TareaController {
 
 
     @GetMapping()
-    public ResponseEntity<RespuestaTareaDTO> ejecutarTarea(@RequestBody ParametroTareaDTO parametroTarea) {
-        String imageName = "mi-app-spring";
-        String containerId = null;
-        DockerClient dockerClient = null;
+    public RespuestaTareaDTO ejecutarTarea(@RequestBody ParametroTareaDTO parametroTarea) {
+        String containerName = "servidortarea";
+        String imageName = "dagyss/servidortarea";
+        int port = 8080;
 
         try {
-            // 1️⃣ Configurar el cliente Docker
-            dockerClient = DockerClientBuilder.getInstance(DefaultDockerClientConfig.createDefaultConfigBuilder().build()).build();
+            // 1️⃣ Verificar si el contenedor ya está corriendo y detenerlo
+            ejecutarComando("docker rm -f " + containerName);
 
-            // 2️⃣ Verificar si la imagen existe, si no, descargarla
-            dockerClient.pullImageCmd(imageName).exec(new PullImageResultCallback()).awaitCompletion();
+            // 2️⃣ Levantar el contenedor con la imagen Docker
+            ejecutarComando("docker run -d --name " + containerName + " -p " + port + ":8080 " + imageName);
 
-            // 3️⃣ Crear y ejecutar el contenedor
-            CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-                    .withHostConfig(new HostConfig().withPortBindings(
-                            new PortBinding(Ports.Binding.bindPort(8080), ExposedPort.tcp(8080))
-                            )
-                    ).exec();
+            // 3️⃣ Esperar a que el contenedor esté listo
+            esperarAQueEsteListo("http://localhost:" + port + "/ejecutarTarea/actuator/health");
 
-            containerId = container.getId();
-
-            dockerClient.startContainerCmd(containerId).exec();
-
-            // 4️⃣ Esperar a que el contenedor esté listo
-            String urlBase = "http://localhost:8080";
-            esperarAQueEsteListo(urlBase + "/ejecutarTarea/actuator/health");
-
-            // 5️⃣ Hacer la petición HTTP
+            // 4️⃣ Hacer la petición HTTP con los parámetros de la tarea
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<ParametroTareaDTO> request = new HttpEntity<>(parametroTarea, headers);
 
             ResponseEntity<RespuestaTareaDTO> response = restTemplate.exchange(
-                    urlBase + "/ejecutarTarea", HttpMethod.GET, request, RespuestaTareaDTO.class);
+                    "http://localhost:" + port + "/ejecutarTarea", HttpMethod.POST, request, RespuestaTareaDTO.class
+            );
 
-            return ResponseEntity.ok(response.getBody());
+            return response.getBody();
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
-        } finally {
-            // 6️⃣ Parar y eliminar el contenedor al finalizar
-            if (dockerClient != null && containerId != null) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
-            }
+            throw new RuntimeException("No se conecto correctamente!");
         }
     }
 
+    /**
+     * Ejecuta un comando en la terminal.
+     */
+    private void ejecutarComando(String comando) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder("sh", "-c", comando);
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+        process.waitFor();
+    }
+
+    /**
+     * Espera hasta que el servicio esté listo consultando su endpoint de salud.
+     */
     private void esperarAQueEsteListo(String url) throws InterruptedException {
         RestTemplate restTemplate = new RestTemplate();
         int intentos = 0;
@@ -85,7 +83,7 @@ public class TareaController {
                     return;
                 }
             } catch (Exception e) {
-                Thread.sleep(2000);
+                Thread.sleep(2000); // Esperar 2 segundos antes de intentar de nuevo
             }
             intentos++;
         }
