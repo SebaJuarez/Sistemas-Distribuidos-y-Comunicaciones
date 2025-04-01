@@ -2,6 +2,8 @@ package SistemaDistribuido.ServidorTarea.controller;
 
 import SistemaDistribuido.ServidorTarea.dtos.ParametroTareaDTO;
 import SistemaDistribuido.ServidorTarea.dtos.ResultadoTareaDTO;
+import SistemaDistribuido.ServidorTarea.exceptions.OperacionNoSoportadaException;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EjecutarTareaController {
 
     @GetMapping()
-    public ResponseEntity<ResultadoTareaDTO> ejecutarTarea(@RequestBody ParametroTareaDTO tareaDTO){
+    public ResponseEntity<ResultadoTareaDTO> ejecutarTarea(@Valid @RequestBody ParametroTareaDTO tareaDTO){
 
         ResultadoTareaDTO resultado = realizarTarea(tareaDTO);
 
@@ -48,7 +50,7 @@ public class EjecutarTareaController {
                 return new ResultadoTareaDTO(numero1.doubleValue() / numero2.doubleValue());
         }
 
-        throw new UnsupportedOperationException("Solo aceptamos + , - , * , /");
+        throw new OperacionNoSoportadaException(operador);
     }
 
 }

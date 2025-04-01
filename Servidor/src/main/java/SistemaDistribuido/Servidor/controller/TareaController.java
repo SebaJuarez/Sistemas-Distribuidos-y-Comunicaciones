@@ -25,7 +25,7 @@ public class TareaController {
 
 
     @GetMapping()
-    public RespuestaTareaDTO ejecutarTarea(@RequestBody ParametroTareaDTO parametroTarea) {
+    public ResponseEntity<RespuestaTareaDTO> ejecutarTarea(@RequestBody ParametroTareaDTO parametroTarea) {
         String imageName = "mi-app-spring";
         String containerId = null;
         DockerClient dockerClient = null;
@@ -61,7 +61,7 @@ public class TareaController {
             ResponseEntity<RespuestaTareaDTO> response = restTemplate.exchange(
                     urlBase + "/ejecutarTarea", HttpMethod.GET, request, RespuestaTareaDTO.class);
 
-            return response.getBody();
+            return ResponseEntity.ok(response.getBody());
 
         } catch (Exception e) {
             e.printStackTrace();
