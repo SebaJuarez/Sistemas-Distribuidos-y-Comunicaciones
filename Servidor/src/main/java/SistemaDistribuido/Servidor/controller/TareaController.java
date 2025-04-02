@@ -28,7 +28,10 @@ public class TareaController {
 
             ejecutarComando("docker rm -f " + containerName);
 
-            ejecutarComando("docker run -d --name " + containerName + " -p " + port + ":8080 " + imageName);
+            ejecutarComando("docker run -d --name " + containerName +
+                    " -p " + port + ":8080 " +
+                    "-v /var/run/docker.sock:/var/run/docker.sock " +
+                    imageName);
 
             esperarAQueEsteListo("http://localhost:" + port + "/ejecutarTarea/actuator/health");
 

@@ -10,9 +10,9 @@ echo " Eliminando contenedor anterior..."
 docker rm -f servidor 2>/dev/null
 
 echo " Levantando el contenedor..."
-docker run -d --name servidor -p 8080:9090 servidor
+docker run --privileged -d --name servidor -p 8080:9090 servidor
 
-
+sleep 25
 # Hacer la solicitud HTTP POST y capturar la respuesta
 echo -e "\n Enviando solicitud POST a /tarea..."
 RESPONSE=$(curl -s -X POST "http://localhost:8080/tarea" \
