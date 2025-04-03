@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/ejecutarTarea")
 public class EjecutarTareaController {
 
-    @PostMapping()  // <- Cambiado de @GetMapping a @PostMapping
+    @PostMapping()
     public ResponseEntity<ResultadoTareaDTO> ejecutarTarea(@Valid @RequestBody ParametroTareaDTO tareaDTO) {
 
         ResultadoTareaDTO resultado = realizarTarea(tareaDTO);
