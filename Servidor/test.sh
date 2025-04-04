@@ -13,18 +13,5 @@ echo " Levantando el contenedor..."
 docker run --privileged -d --name servidor -p 8080:9090 servidor
 
 sleep 25
-# Hacer la solicitud HTTP POST y capturar la respuesta
-echo -e "\n Enviando solicitud POST a /tarea..."
-RESPONSE=$(curl -s -X POST "http://localhost:8080/tarea" \
-     -H "Content-Type: application/json" \
-     -d '{
-          "operador": "*",
-          "numero1": "443",
-          "numero2": "-4"
-         }')
 
-# Mostrar la respuesta
-echo -e "\n Respuesta del servidor:"
-echo "$RESPONSE"
-
-echo -e "\n Proceso completado."
+echo -e "\n Proceso completado, ejecute pruebas.sh para enviar solicitudes."
