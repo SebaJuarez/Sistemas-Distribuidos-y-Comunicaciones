@@ -2,7 +2,7 @@
 
 # Hacer la solicitud HTTP POST y capturar la respuesta
 echo -e "\n Enviando solicitudes POST a /tarea..."
-echo -e "\n OPERACION_BASICA"
+echo -e "\n OPERACION_BASICA: 443 * (-4)"
 RESPONSE=$(curl -s -X POST "http://localhost:8080/tarea" \
      -H "Content-Type: application/json" \
      -d '{
@@ -17,7 +17,7 @@ echo "$RESPONSE"
 
 sleep 3
 
-echo -e "\n OPERACION_COMPARACION"
+echo -e "\n OPERACION_COMPARACION: 54 >= 43"
 RESPONSE=$(curl -s -X POST "http://localhost:8080/tarea" \
      -H "Content-Type: application/json" \
      -d '{
@@ -32,7 +32,7 @@ echo "$RESPONSE"
 
 sleep 3
 
-echo -e "\n OPERACION_LOGICA"
+echo -e "\n OPERACION_LOGICA: true XOR false"
 RESPONSE=$(curl -s -X POST "http://localhost:8080/tarea" \
      -H "Content-Type: application/json" \
      -d '{
@@ -47,7 +47,7 @@ echo "$RESPONSE"
 
 sleep 3
 
-echo -e "\n OPERACION_INEXISTENTE"
+echo -e "\n OPERACION_INEXISTENTE: (4SAFD 23 -4124)"
 RESPONSE=$(curl -s -X POST "http://localhost:8080/tarea" \
      -H "Content-Type: application/json" \
      -d '{
