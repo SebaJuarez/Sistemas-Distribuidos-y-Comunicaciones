@@ -1,10 +1,11 @@
 package SistemaDistribuido.ServidorTarea.exceptions;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class OperacionNoSoportadaException extends RuntimeException {
+public class OperacionNoSoportadaException extends HttpMessageNotReadableException {
 
     private final String detalle;
 

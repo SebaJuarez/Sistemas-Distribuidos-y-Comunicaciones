@@ -12,20 +12,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorDTO> manejarErrorDeserializacion(HttpMessageNotReadableException ex) {
-        String mensajeError = "Error en el formato del JSON: " + ex.getMostSpecificCause().getMessage();
-
-        ErrorDTO errorDTO = new ErrorDTO(
-                HttpStatus.BAD_REQUEST.value(),
-                "Error de deserialización",
-                mensajeError
-        );
-
-        return ResponseEntity.badRequest().body(errorDTO);
-    }
-
     @ExceptionHandler(OperacionNoSoportadaException.class)
     public ResponseEntity<ErrorDTO> manejarOperacionNoSoportada(OperacionNoSoportadaException ex) {
         ErrorDTO errorDTO = new ErrorDTO(
