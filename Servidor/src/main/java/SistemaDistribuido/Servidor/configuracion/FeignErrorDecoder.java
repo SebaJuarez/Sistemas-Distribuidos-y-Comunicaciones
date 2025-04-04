@@ -1,16 +1,17 @@
 package SistemaDistribuido.Servidor.configuracion;
 
-import SistemaDistribuido.Servidor.dtos.ErrorRespuestaDTO;
+import SistemaDistribuido.Servidor.dtos.ErrorDTO;
+import SistemaDistribuido.Servidor.exceptions.ErrorTareaException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
+import feign.Util;
 import feign.codec.ErrorDecoder;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
+@Component
 public class FeignErrorDecoder implements ErrorDecoder {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -18,17 +19,16 @@ public class FeignErrorDecoder implements ErrorDecoder {
     @Override
     public Exception decode(String methodKey, Response response) {
         try {
-            String cuerpo = response.body() != null ?
-                    new String(response.body().asInputStream().readAllBytes(), StandardCharsets.UTF_8) : "";
+            String responseBody = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            int codigoEstado = jsonNode.get("codigoEstado").intValue();
+            String mensaje = jsonNode.has("mensaje") ? jsonNode.get("mensaje").asText() : "Error desconocido";
+            String detalle = jsonNode.has("detalle") ? jsonNode.get("detalle").asText() : "No hay detalles";
+            ErrorDTO errorDTO = new ErrorDTO(codigoEstado, mensaje, detalle);
+            return new ErrorTareaException(errorDTO);
 
-            ErrorRespuestaDTO errorRespuesta = objectMapper.readValue(cuerpo, ErrorRespuestaDTO.class);
-
-            HttpStatus status = HttpStatus.resolve(errorRespuesta.getStatus());
-            if (status == null) status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-            return new ResponseStatusException(status, errorRespuesta.getMessage());
-        } catch (IOException e) {
-            return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error procesando la respuesta del servidor de tareas");
+        } catch (Exception e) {
+            return new ErrorTareaException(new ErrorDTO(response.status(), "Error desconocido", "No se pudo procesar la respuesta del servidor de tareas."));
         }
     }
 }

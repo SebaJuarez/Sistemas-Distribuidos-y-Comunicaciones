@@ -1,7 +1,8 @@
 package SistemaDistribuido.ServidorTarea.dtos;
 
 import SistemaDistribuido.ServidorTarea.domain.TipoTarea;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public record ParametroTareaDTO(
 
@@ -21,7 +22,7 @@ public record ParametroTareaDTO(
         @NotNull(message = "El segundo parámetro no puede ser nulo")
         Object parametro2
 ) {
-        public ParametroTareaDTO {
-                tipoTarea.validarParametros(operador, parametro1, parametro2);
-        }
+    public ParametroTareaDTO {
+        tipoTarea.validarParametros(operador, parametro1, parametro2);
+    }
 }

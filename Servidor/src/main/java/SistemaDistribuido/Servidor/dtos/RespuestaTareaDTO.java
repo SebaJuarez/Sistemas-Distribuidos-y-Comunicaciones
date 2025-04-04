@@ -1,4 +1,4 @@
 package SistemaDistribuido.Servidor.dtos;
 
-public record RespuestaTareaDTO(Number resultado) {
+public record RespuestaTareaDTO(boolean exito, String mensaje, Object resultado) {
 }

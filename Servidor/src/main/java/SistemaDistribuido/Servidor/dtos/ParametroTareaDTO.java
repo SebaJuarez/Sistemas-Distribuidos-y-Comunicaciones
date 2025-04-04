@@ -1,6 +1,7 @@
 package SistemaDistribuido.Servidor.dtos;
 
 
-public record ParametroTareaDTO(String operador, Double numero1, Double numero2   // <- Cambiado de Number a Double
-) {
+import SistemaDistribuido.Servidor.domain.TipoTarea;
+
+public record ParametroTareaDTO(TipoTarea tipoTarea, String operador, Object parametro1, Object parametro2) {
 }
