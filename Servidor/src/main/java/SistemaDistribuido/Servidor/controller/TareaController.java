@@ -1,6 +1,5 @@
 package SistemaDistribuido.Servidor.controller;
 
-import SistemaDistribuido.Servidor.dtos.ParametroTareaDTO;
 import SistemaDistribuido.Servidor.dtos.RespuestaTareaDTO;
 import SistemaDistribuido.Servidor.services.TareaService;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +17,8 @@ public class TareaController {
     private final TareaService tareaService;
 
     @PostMapping()
-    public ResponseEntity<RespuestaTareaDTO> ejecutarTarea(@RequestBody ParametroTareaDTO parametroTarea) {
+    public ResponseEntity<RespuestaTareaDTO> ejecutarTarea(@RequestBody Object parametroTarea) {
         return ResponseEntity.ok(tareaService.realizarTarea(parametroTarea));
     }
-
 
 }

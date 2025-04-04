@@ -1,7 +1,6 @@
 package SistemaDistribuido.Servidor.feignClient;
 
 import SistemaDistribuido.Servidor.configuracion.FeignConfig;
-import SistemaDistribuido.Servidor.dtos.ParametroTareaDTO;
 import SistemaDistribuido.Servidor.dtos.RespuestaTareaDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface TareaFeignClient {
 
     @PostMapping(value = "${container.endpoint.ejecutarTarea}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<RespuestaTareaDTO> ejecutarTarea(@RequestBody ParametroTareaDTO parametroTarea);
+    ResponseEntity<RespuestaTareaDTO> ejecutarTarea(@RequestBody Object parametroTarea);
 
     @GetMapping(value = "${container.endpoint.health}")
     ResponseEntity<String> healthCheck();

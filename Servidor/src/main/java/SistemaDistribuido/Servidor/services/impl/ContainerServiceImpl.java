@@ -1,7 +1,6 @@
 package SistemaDistribuido.Servidor.services.impl;
 
 import SistemaDistribuido.Servidor.configuracion.ContainerProperties;
-import SistemaDistribuido.Servidor.dtos.ParametroTareaDTO;
 import SistemaDistribuido.Servidor.dtos.RespuestaTareaDTO;
 import SistemaDistribuido.Servidor.exceptions.CommandExecutionException;
 import SistemaDistribuido.Servidor.exceptions.ContainerNotStartedException;
@@ -31,11 +30,11 @@ public class ContainerServiceImpl implements ContainerService {
 
             System.out.println(containerExiste(containerProperties.getName()));
 
-            esperarAQueEsteListo(containerProperties.getUrl() + containerProperties.getEndpointHealth());
+            esperarAQueEsteListo();
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ContainerNotStartedException(e.getMessage().toString(), containerProperties.getName(), containerProperties.getImage());
+            throw new ContainerNotStartedException(e.getMessage(), containerProperties.getName(), containerProperties.getImage());
         }
     }
 
@@ -48,7 +47,7 @@ public class ContainerServiceImpl implements ContainerService {
     }
 
     @Override
-    public RespuestaTareaDTO ejecutarTareaRemota(ParametroTareaDTO parametroTarea) {
+    public RespuestaTareaDTO ejecutarTareaRemota(Object parametroTarea) {
         return tareaFeignClient.ejecutarTarea(parametroTarea).getBody();
     }
 
@@ -93,13 +92,13 @@ public class ContainerServiceImpl implements ContainerService {
         }
     }
 
-    private void esperarAQueEsteListo(String url) throws InterruptedException {
+    private void esperarAQueEsteListo() throws InterruptedException {
         int intentos = 0;
         while (intentos < 10) {
             try {
                 ResponseEntity<String> response = tareaFeignClient.healthCheck();
                 if (response.getStatusCode().is2xxSuccessful()) {
-                    System.out.println("esta listo " + response.getBody().toString());
+                    System.out.println("esta listo " + response.getBody());
                     return;
                 }
             } catch (Exception e) {

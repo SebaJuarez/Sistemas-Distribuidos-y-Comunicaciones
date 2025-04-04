@@ -1,8 +1,6 @@
 package SistemaDistribuido.Servidor.services;
 
-import SistemaDistribuido.Servidor.dtos.ParametroTareaDTO;
 import SistemaDistribuido.Servidor.dtos.RespuestaTareaDTO;
-import org.springframework.http.ResponseEntity;
 
 public interface ContainerService {
 
@@ -10,6 +8,6 @@ public interface ContainerService {
 
     void borrarContainer();
 
-    RespuestaTareaDTO ejecutarTareaRemota(ParametroTareaDTO parametroTarea);
+    RespuestaTareaDTO ejecutarTareaRemota(Object parametroTarea);
 
 }
