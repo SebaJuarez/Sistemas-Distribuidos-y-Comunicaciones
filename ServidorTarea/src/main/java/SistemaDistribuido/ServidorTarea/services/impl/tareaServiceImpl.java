@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class tareaServiceImpl implements TareaService {
 
     private TareaStrategy tareaStrategy;
+
     @Override
     public ResultadoTareaDTO realizarTarea(ParametroTareaDTO parametros) {
 

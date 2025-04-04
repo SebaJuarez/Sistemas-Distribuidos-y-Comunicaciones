@@ -2,7 +2,6 @@ package SistemaDistribuido.ServidorTarea.controller;
 
 import SistemaDistribuido.ServidorTarea.dtos.ParametroTareaDTO;
 import SistemaDistribuido.ServidorTarea.dtos.ResultadoTareaDTO;
-import SistemaDistribuido.ServidorTarea.exceptions.OperacionNoSoportadaException;
 import SistemaDistribuido.ServidorTarea.services.TareaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class EjecutarTareaController {
 
     private final TareaService tareaService;
+
     @PostMapping()
     public ResponseEntity<ResultadoTareaDTO> ejecutarTarea(@Valid @RequestBody ParametroTareaDTO tareaDTO) {
         ResultadoTareaDTO resultado = tareaService.realizarTarea(tareaDTO);
